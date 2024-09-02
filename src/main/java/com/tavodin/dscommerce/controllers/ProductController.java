@@ -1,9 +1,9 @@
 package com.tavodin.dscommerce.controllers;
 
 import com.tavodin.dscommerce.dto.ProductDTO;
+import com.tavodin.dscommerce.dto.ProductMinDTO;
 import com.tavodin.dscommerce.services.ProductService;
 import jakarta.validation.Valid;
-import org.apache.coyote.Response;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -27,7 +27,7 @@ public class ProductController {
     }
 
     @GetMapping
-    public ResponseEntity<Page<ProductDTO>> findAll(
+    public ResponseEntity<Page<ProductMinDTO>> findAll(
         @RequestParam(name = "name", defaultValue = "") String name, Pageable pageable) {
         return ResponseEntity.ok(service.findAll(name, pageable));
     }

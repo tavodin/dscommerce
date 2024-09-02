@@ -1,6 +1,7 @@
 package com.tavodin.dscommerce.services;
 
 import com.tavodin.dscommerce.dto.ProductDTO;
+import com.tavodin.dscommerce.dto.ProductMinDTO;
 import com.tavodin.dscommerce.entities.Product;
 import com.tavodin.dscommerce.repositories.ProductRepository;
 import com.tavodin.dscommerce.services.exceptions.DatabaseException;
@@ -28,9 +29,9 @@ public class ProductService {
     }
 
     @Transactional(readOnly = true)
-    public Page<ProductDTO> findAll(String name, Pageable pageable) {
+    public Page<ProductMinDTO> findAll(String name, Pageable pageable) {
         Page<Product> result = repository.searchByName(name, pageable);
-        return result.map(ProductDTO::new);
+        return result.map(ProductMinDTO::new);
     }
 
     @Transactional
