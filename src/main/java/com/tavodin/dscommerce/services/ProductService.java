@@ -2,6 +2,7 @@ package com.tavodin.dscommerce.services;
 
 import com.tavodin.dscommerce.dto.ProductDTO;
 import com.tavodin.dscommerce.dto.ProductMinDTO;
+import com.tavodin.dscommerce.entities.Category;
 import com.tavodin.dscommerce.entities.Product;
 import com.tavodin.dscommerce.repositories.ProductRepository;
 import com.tavodin.dscommerce.services.exceptions.DatabaseException;
@@ -74,5 +75,7 @@ public class ProductService {
         entity.setDescription(dto.getDescription());
         entity.setPrice(dto.getPrice());
         entity.setImgUrl(dto.getImgUrl());
+        entity.getCategories().clear();
+        dto.getCategories().forEach(dc -> entity.getCategories().add(new Category(dc.getId(), dc.getName())));
     }
 }
