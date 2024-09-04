@@ -1,7 +1,9 @@
 package com.tavodin.dscommerce.dto;
 
 import com.tavodin.dscommerce.entities.Order;
+import com.tavodin.dscommerce.entities.OrderItem;
 import com.tavodin.dscommerce.entities.OrderStatus;
+import jakarta.validation.constraints.NotEmpty;
 
 import java.time.Instant;
 import java.util.ArrayList;
@@ -15,6 +17,8 @@ public class OrderDTO {
 
     private ClientDTO client;
     private PaymentDTO payment;
+
+    @NotEmpty(message = "Deve ter pelo menos um item")
     private List<OrderItemDTO> items = new ArrayList<>();
 
     public OrderDTO(Long id, Instant moment, OrderStatus status, ClientDTO client, PaymentDTO payment) {
@@ -32,7 +36,9 @@ public class OrderDTO {
         this.client = new ClientDTO(entity.getClient());
         this.payment = (entity.getPayment() == null) ? null : new PaymentDTO(entity.getPayment());
 
-        entity.getItems().forEach(i -> items.add(new OrderItemDTO(i)));
+        for(OrderItem item : entity.getItems()) {
+            items.add(new OrderItemDTO(item));
+        }
     }
 
     public Long getId() {
