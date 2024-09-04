@@ -1,4 +1,4 @@
-package com.tavodin.dscommerce.controllers.handlers;
+package com.tavodin.dscommerce.controllers;
 
 import com.tavodin.dscommerce.dto.UserDTO;
 import com.tavodin.dscommerce.services.UserService;
