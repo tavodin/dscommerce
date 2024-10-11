@@ -2,10 +2,8 @@ package com.tavodin.dscommerce.services;
 
 import com.tavodin.dscommerce.dto.CategoryDTO;
 import com.tavodin.dscommerce.entities.Category;
-import com.tavodin.dscommerce.entities.Product;
 import com.tavodin.dscommerce.repositories.CategoryRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
