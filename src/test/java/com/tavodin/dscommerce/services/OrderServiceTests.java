@@ -2,12 +2,18 @@ package com.tavodin.dscommerce.services;
 
 import com.tavodin.dscommerce.dto.OrderDTO;
 import com.tavodin.dscommerce.entities.Order;
+import com.tavodin.dscommerce.entities.OrderItem;
+import com.tavodin.dscommerce.entities.Product;
 import com.tavodin.dscommerce.entities.User;
+import com.tavodin.dscommerce.repositories.OrderItemRepository;
 import com.tavodin.dscommerce.repositories.OrderRepository;
+import com.tavodin.dscommerce.repositories.ProductRepository;
 import com.tavodin.dscommerce.services.exceptions.ForbiddenException;
 import com.tavodin.dscommerce.services.exceptions.ResourceNotFoundException;
 import com.tavodin.dscommerce.tests.OrderFactory;
+import com.tavodin.dscommerce.tests.ProductFactory;
 import com.tavodin.dscommerce.tests.UserFactory;
+import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -15,8 +21,10 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
+import java.util.ArrayList;
 import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -33,15 +41,29 @@ public class OrderServiceTests {
     @Mock
     private AuthService authService;
 
+    @Mock
+    private ProductRepository productRepository;
+
+    @Mock
+    private OrderItemRepository orderItemRepository;
+
+    @Mock
+    private UserService userService;
+
     private Long existingOrderId, nonExistingOrderId;
+    private Long existingProductId, nonExistingProductId;
     private Order order;
     private OrderDTO orderDTO;
     private User admin, client;
+    private Product product;
 
     @BeforeEach
     void setUp() throws Exception {
         existingOrderId = 1L;
         nonExistingOrderId = 2L;
+
+        existingProductId = 1L;
+        nonExistingProductId = 2L;
 
         admin = UserFactory.createdCustomAdminUser(1L, "Jef");
         client = UserFactory.createdCustomClientUser(2L, "Bob");
@@ -49,8 +71,17 @@ public class OrderServiceTests {
         order = OrderFactory.createOrder(client);
         orderDTO = new OrderDTO(order);
 
+        product = ProductFactory.createProduct();
+
         Mockito.when(repository.findById(existingOrderId)).thenReturn(Optional.of(order));
         Mockito.when(repository.findById(nonExistingOrderId)).thenReturn(Optional.empty());
+
+        Mockito.when(productRepository.getReferenceById(existingProductId)).thenReturn(product);
+        Mockito.when(productRepository.getReferenceById(nonExistingProductId)).thenThrow(EntityNotFoundException.class);
+
+        Mockito.when(repository.save(any())).thenReturn(order);
+
+        Mockito.when(orderItemRepository.saveAll(any())).thenReturn(new ArrayList<>(order.getItems()));
     }
 
     @Test
@@ -88,6 +119,51 @@ public class OrderServiceTests {
 
         Assertions.assertThrows(ResourceNotFoundException.class, () -> {
             OrderDTO result = service.findById(nonExistingOrderId);
+        });
+    }
+
+    @Test
+    public void insertShouldReturnOrderDTOWhenAdminLogged() {
+        Mockito.when(userService.authenticated()).thenReturn(admin);
+
+        OrderDTO result = service.insert(orderDTO);
+
+        Assertions.assertNotNull(result);
+    }
+
+    @Test
+    public void insertShouldReturnOrderDTOWhenClientLogged() {
+        Mockito.when(userService.authenticated()).thenReturn(admin);
+
+        OrderDTO result = service.insert(orderDTO);
+
+        Assertions.assertNotNull(result);
+    }
+
+    @Test
+    public void insertShouldThrowsUsernameNotFoundExceptionWhenUserNotLogged() {
+        Mockito.doThrow(UsernameNotFoundException.class).when(userService).authenticated();
+
+        order.setClient(new User());
+        orderDTO = new OrderDTO(order);
+
+        Assertions.assertThrows(UsernameNotFoundException.class, () -> {
+            OrderDTO result = service.insert(orderDTO);
+        });
+    }
+
+    @Test
+    public void insertShouldThrowsEntityNotFoundExceptionOrderProductIdDoesNotExists() {
+        Mockito.when(userService.authenticated()).thenReturn(client);
+
+        product.setId(nonExistingProductId);
+        OrderItem orderItem = new OrderItem(order, product, 2, 10.0);
+        order.getItems().add(orderItem);
+
+        orderDTO = new OrderDTO(order);
+
+        Assertions.assertThrows(EntityNotFoundException.class, () -> {
+            OrderDTO result = service.insert(orderDTO);
         });
     }
 }
