@@ -61,7 +61,6 @@ public class ProductServiceTests {
         Mockito.when(repository.save(any())).thenReturn(product);
 
         Mockito.when(repository.getReferenceById(existingProductId)).thenReturn(product);
-
         Mockito.doThrow(EntityNotFoundException.class).when(repository).getReferenceById(nonExistingProductId);
 
         Mockito.when(repository.existsById(existingProductId)).thenReturn(true);

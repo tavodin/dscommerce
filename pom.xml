@@ -96,6 +96,8 @@
 						<exclude>com/tavodin/dscommerce/dto/**</exclude>
 						<exclude>com/tavodin/dscommerce/controllers/handlers/**</exclude>
 						<exclude>com/tavodin/dscommerce/services/exceptions/**</exclude>
+						<exclude>com/tavodin/dscommerce/util/**</exclude>
+						<exclude>com/tavodin/dscommerce/controllers/**</exclude>
 					</excludes>
 				</configuration>
 				<executions>
